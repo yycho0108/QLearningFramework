@@ -11,10 +11,11 @@ class Action{ //subclass as needed
 	public:
 		//Action(); -- do not know how it will be initialized
 		virtual ~Action();
-		virtual Action* copy();
+		virtual Action* copy()=0;
 		virtual bool operator==(const Action&) const;
 		//provide some identification
 		virtual size_t hash() const;
+		size_t ID() const;
 		//visualization for convenience
 		virtual void print() const;
 };
@@ -23,6 +24,7 @@ class Action{ //subclass as needed
 class TTTAction : public Action{
 	private:
 		static int w,h;
+		size_t _hash;
 	public:
 		static void setSize(int,int);
 		virtual bool operator==(const Action&) const;

@@ -11,23 +11,31 @@ class SA;
 class Q;
 
 class S{ //serve as containers (to prevent pointer-comparison)
+	using After = State::After;
 	friend class A;
 	friend class Q; //actually should be inside Q
+	friend class SA;
 	private:
-		State* s;
+		State* s; //consider using a smart pointer.
 	public:
-		S(State* s=nullptr);
+		S();
+		S(State*& s)=delete;//let's just avoid ambiguity.
+		S(State*&& s);
 		S(const S&);
 		//S(State&&);
 		~S();
 		//comparator
+		S& operator=(S&); //steal
+		S& operator=(S&&); //steal
 		bool operator==(const S&) const;
 		size_t hash() const;
 
 		//utility
 		double reward();
-		S next(A);
+		S next(A&);
+		void next(After&);
 		void print() const;
+		State* get() const;
 };
 
 namespace std{
@@ -42,17 +50,23 @@ namespace std{
 class A{ //serve as containers (to prevent pointer-comparison)
 	friend class S;
 	friend class Q;
+	friend class SA;
 	private:
-		Action* a;
+		Action* a;//consider using a smart pointer.
 	public:
-		A(Action* a=nullptr);
+		A();
+		A(Action*& a)=delete;//let's just avoid ambiguity.
+		A(Action*&& a);
 		A(const A&);
 		//A(Action&&);
 		~A();
+		A& operator=(A&);
+		A& operator=(A&&);
 		bool operator==(const A&) const;
 		//return *a==*a
 		size_t hash() const;
 		void print() const;
+		Action* get() const;
 };
 
 namespace std{
@@ -76,9 +90,10 @@ class SA{ //State-Action pair
 		size_t _hash; //for convenience, in case hash is costly
 		double _reward;
 	public:
-		SA(S,A);//calculate _hash
-		SA(const SA&);
-		SA(SA&&) = default; // = member-wise move
+		SA(S&,A&)=delete;//calculate _hash
+		SA(S&&,A&&);
+		SA(const SA&);// = delete;
+		SA(SA&& sa); // = member-wise move
 		virtual ~SA();
 		//comparator
 		virtual bool operator==(const SA&) const;
@@ -123,7 +138,7 @@ class Q{
 		
 		//utility
 		virtual void print() const;
-		virtual std::unordered_map<S,std::pair<A,double>> policy() const; //is this necessary...?
+		virtual std::unordered_map<S,std::pair<A,double>> policy() const; 
 		virtual void printPolicy() const;
 		virtual size_t size() const;
 };
@@ -132,16 +147,16 @@ class Q{
 
 /*
  * class TTTQ : public Q{
-	private:
-		static double gamma;
 	public:
 		//logic
 		virtual double alpha(const SA&);
 		virtual double max(const S&);
-		virtual void advance();
+		virtual void advance(int);
 
 		//utility
 		virtual void print() const;
+		virtual std::unordered_map<S,std::pair<A,double>> policy() const;
+		virtual void printPolicy() const;
 		virtual size_t size() const;
 };
 */

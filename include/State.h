@@ -6,22 +6,28 @@
 class State{
 	//subclass & fill in traits as necessary.
 	public:
+		struct After:public std::vector<Action*>{
+			After();
+			After(After&&);
+			After(const After&)=delete;
+			~After();
+		};
 		virtual ~State();
 		//State(State&,Action);
 
 		//comparator
-		virtual bool operator==(const State&);
-		virtual size_t hash() const;
+		virtual bool operator==(const State&) const=0;
+		virtual size_t hash() const=0;
 		
 		//T,R
-		virtual State* next(Action& a);// = return new State(*this,a); ...or something along the lines
-		virtual std::vector<Action*> next();	
-		virtual double reward();
-		virtual double reward(Action& a);
+		virtual State* next(Action& a)=0;// = return new State(*this,a);
+		virtual void  next(After&)=0;// = return vector of new actions	
+		virtual double reward()=0;
+		virtual double reward(Action& a)=0;
 		
 		//utility
-		virtual State* copy();
-		virtual void print() const;
+		virtual State* copy()=0;
+		virtual void print() const=0;
 		//double max();
 };
 
@@ -49,12 +55,13 @@ class State{
 		static void setSize(int,int);
 		
 		//T,R
-		virtual State next(Action& a);
-		virtual std::vector<State> next();
+		virtual State* next(Action& a);
+		virtual std::vector<Action*> next();
 		virtual double reward();
 		virtual double reward(Action& a);
 
 		//utility
+		virtual State* copy();
 		virtual void print() const;
 };
 
