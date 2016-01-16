@@ -1,5 +1,7 @@
 #swap/redundant
 *~
 .*~
+*.swp
+*.swp~
 #build files
 build
